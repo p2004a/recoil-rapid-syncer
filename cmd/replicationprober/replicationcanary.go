@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/InfluxCommunity/influxdb3-go/influxdb3"
+	"github.com/InfluxCommunity/influxdb3-go/v2/influxdb3"
 	"github.com/beyond-all-reason/recoil-rapid-syncer/pkg/bunny"
 )
 
@@ -45,25 +45,25 @@ func (s *StorageReplicationProber) startCanaryUpdater(ctx context.Context) {
 			log.Printf("WARN: Failed to update replication canary: %v", err)
 			points = append(points,
 				influxdb3.NewPointWithMeasurement("replication_canary_update_result").
-					AddField("total", 1).
-					AddField("error", 1).
-					AddField("ok", 0).
+					SetField("total", 1).
+					SetField("error", 1).
+					SetField("ok", 0).
 					SetTimestamp(time.Now()))
 		} else {
 			latency := time.Since(start)
 			points = append(points,
 				influxdb3.NewPointWithMeasurement("replication_canary_update_result").
-					AddField("total", 1).
-					AddField("error", 0).
-					AddField("ok", 1).
+					SetField("total", 1).
+					SetField("error", 0).
+					SetField("ok", 1).
 					SetTimestamp(time.Now()),
 				influxdb3.NewPointWithMeasurement("replication_canary_update_latency").
-					AddField("latency", latency.Milliseconds()).
+					SetField("latency", latency.Milliseconds()).
 					SetTimestamp(time.Now()))
 		}
 
 		c, cancel = context.WithTimeout(ctx, s.refreshReplicationCanaryPeriod/3)
-		if err := s.influxdbClient.WritePoints(c, points...); err != nil {
+		if err := s.influxdbClient.WritePoints(c, points); err != nil {
 			log.Printf("WARN: Failed to report replication_canary_update_latency to influxdb: %v", err)
 		}
 		cancel()
@@ -96,9 +96,9 @@ func (s *StorageReplicationProber) startReplicationStatusChecker(ctx context.Con
 			log.Printf("WARN: Failed to fetch replication status: %v", err)
 			points = append(points,
 				influxdb3.NewPointWithMeasurement("replication_status_check_result").
-					AddField("total", 1).
-					AddField("error", 1).
-					AddField("ok", 0).
+					SetField("total", 1).
+					SetField("error", 1).
+					SetField("ok", 0).
 					SetTimestamp(time.Now()))
 		} else {
 			latency := time.Since(start)
@@ -107,27 +107,27 @@ func (s *StorageReplicationProber) startReplicationStatusChecker(ctx context.Con
 
 			points = append(points,
 				influxdb3.NewPointWithMeasurement("replication_status_check_result").
-					AddField("total", 1).
-					AddField("error", 0).
-					AddField("ok", 1).
+					SetField("total", 1).
+					SetField("error", 0).
+					SetField("ok", 1).
 					SetTimestamp(measurementTime),
 				influxdb3.NewPointWithMeasurement("replication_status_check_latency").
-					AddField("latency", latency.Milliseconds()).
+					SetField("latency", latency.Milliseconds()).
 					SetTimestamp(measurementTime))
 
 			for _, r := range rs {
 				points = append(points,
 					influxdb3.NewPointWithMeasurement("replication_status_state").
-						AddTag("storage_server", r.StorageServer).
-						AddField("replicated", r.Replicated.Unix()).
-						AddField("created", r.Created.Unix()).
-						AddField("unsynced_for", r.UnsyncedFor.Seconds()).
+						SetTag("storage_server", r.StorageServer).
+						SetField("replicated", r.Replicated.Unix()).
+						SetField("created", r.Created.Unix()).
+						SetField("unsynced_for", r.UnsyncedFor.Seconds()).
 						SetTimestamp(measurementTime))
 			}
 		}
 
 		c, cancel = context.WithTimeout(ctx, s.checkReplicationStatusPeriod/3)
-		if err := s.influxdbClient.WritePoints(c, points...); err != nil {
+		if err := s.influxdbClient.WritePoints(c, points); err != nil {
 			log.Printf("WARN: Failed to report replication_status_check_latency to influxdb: %v", err)
 		}
 		cancel()

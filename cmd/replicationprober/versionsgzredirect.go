@@ -14,7 +14,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/InfluxCommunity/influxdb3-go/influxdb3"
+	"github.com/InfluxCommunity/influxdb3-go/v2/influxdb3"
 	"github.com/beyond-all-reason/recoil-rapid-syncer/pkg/bunny"
 )
 
@@ -97,38 +97,38 @@ func (p *RedirectProber) startIPProber(ctx context.Context, ip string) {
 		if err != nil {
 			points = append(points,
 				influxdb3.NewPointWithMeasurement("versiongz_redirect_check_result").
-					AddTag("target", ip).
-					AddTag("repo", p.repo).
-					AddField("total", 1).
-					AddField("error", 1).
-					AddField("ok", 0).
+					SetTag("target", ip).
+					SetTag("repo", p.repo).
+					SetField("total", 1).
+					SetField("error", 1).
+					SetField("ok", 0).
 					SetTimestamp(time.Now()))
 		} else {
 			latency := time.Since(start)
 			measurementTime := time.Now()
 			points = append(points,
 				influxdb3.NewPointWithMeasurement("versiongz_redirect_check_result").
-					AddTag("target", ip).
-					AddTag("repo", p.repo).
-					AddField("total", 1).
-					AddField("error", 0).
-					AddField("ok", 1).
+					SetTag("target", ip).
+					SetTag("repo", p.repo).
+					SetField("total", 1).
+					SetField("error", 0).
+					SetField("ok", 1).
 					SetTimestamp(measurementTime),
 				influxdb3.NewPointWithMeasurement("versiongz_redirect_check_latency").
-					AddTag("target", ip).
-					AddTag("repo", p.repo).
-					AddField("latency", latency.Milliseconds()).
+					SetTag("target", ip).
+					SetTag("repo", p.repo).
+					SetField("latency", latency.Milliseconds()).
 					SetTimestamp(measurementTime),
 				influxdb3.NewPointWithMeasurement("versiongz_redirect_state").
-					AddTag("target", ip).
-					AddTag("repo", p.repo).
-					AddTag("region", status.Region).
-					AddField("version", status.Version).
+					SetTag("target", ip).
+					SetTag("repo", p.repo).
+					SetTag("region", status.Region).
+					SetField("version", status.Version).
 					SetTimestamp(measurementTime))
 		}
 
 		c, cancel = context.WithTimeout(ctx, p.probePeriod/3)
-		if err := p.influxdbClient.WritePoints(c, points...); err != nil {
+		if err := p.influxdbClient.WritePoints(c, points); err != nil {
 			log.Printf("WARN: Failed to report replication_canary_update_latency to influxdb: %v", err)
 		}
 		cancel()

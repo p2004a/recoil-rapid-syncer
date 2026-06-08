@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/InfluxCommunity/influxdb3-go/influxdb3"
+	"github.com/InfluxCommunity/influxdb3-go/v2/influxdb3"
 	"github.com/beyond-all-reason/recoil-rapid-syncer/pkg/bunny"
 	"github.com/beyond-all-reason/recoil-rapid-syncer/pkg/sfcache"
-	"github.com/caarlos0/env/v9"
+	"github.com/caarlos0/env/v11"
 )
 
 const UserAgent = "recoil-rapid-syncer/prober 1.0"

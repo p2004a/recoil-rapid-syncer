@@ -49,7 +49,7 @@ func (s *Server) HandleSync(w http.ResponseWriter, r *http.Request) {
 		}
 		msg := fmt.Sprintf("Synced %d archives to %s", synced[i], repo)
 		if synced[i] > 0 {
-			log.Printf(msg)
+			log.Print(msg)
 		}
 		out.WriteString(msg)
 		out.WriteString("\n")
